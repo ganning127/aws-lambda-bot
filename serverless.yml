@@ -14,8 +14,8 @@
 service: example-aws-lambda-serverless
 
 # app and org for use with dashboard.serverless.com
-app: probot-hello-world-example
-org: probot
+app: example-aws-lambda-serverless
+org: ganning127
 
 frameworkVersion: "2"
 useDotenv: true
@@ -38,3 +38,5 @@ functions:
       - httpApi:
           path: /api/github/webhooks
           method: post
+    
+    
