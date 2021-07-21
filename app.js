@@ -9,7 +9,7 @@ const steps = require('./functions/steps.js');
 var start;
 
 module.exports = (app) => {
-  app.log.info("Yay, the app was loaded!");
+  console.log("Yay! The app was loaded")
 
   app.on("push", async (context) => {
     console.log("Push event");
@@ -48,7 +48,7 @@ module.exports = (app) => {
   })
 
   app.on('pull_request.closed', async (context) => {
-    console.log("Pull request")
+    console.log("Pull request closed")
     main(context, 'pull_request.closed');
   });
 
@@ -77,13 +77,17 @@ module.exports = (app) => {
 
 async function main(context, event) {
   console.log("entering main")
+  console.log(event);
+
   let currentStep = ""
   let configData = await data.yamlFile(context);
   console.log(configData)
   if (configData == null) {
+    console.log("null config data");
     return
   }
 
+  console.log("got config yml")
   try {
     console.log("Getting current step!")
     currentStep = await data.findStep(context);
@@ -91,9 +95,13 @@ async function main(context, event) {
 
   } catch (e) {
     console.log(e)
+    console.log("no current step");
     return;
 
   }
+
+  console.log("running event checks");
+  console.log(event)
 
   if (event == 'create') {
     console.log("create event")

@@ -30,10 +30,21 @@ provider:
     WEBHOOK_SECRET: ${param:WEBHOOK_SECRET}
     NODE_ENV: production
     LOG_LEVEL: debug
+  memorySize: 2048
+
+# plugins:
+#   - serverless-newrelic-lambda-layers
+
+# custom:
+#   newRelic:
+#     accountId: ${param:NEW_RELIC_ACCOUNT_ID}
+#     apiKey: ${param:NEW_RELIC_PERSONAL_API_KEY}
+#     logLevel: debug
 
 functions:
   webhooks:
     handler: handler.webhooks
+    memorySize: 2048
     events:
       - httpApi:
           path: /api/github/webhooks

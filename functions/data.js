@@ -6,18 +6,18 @@ const parseTable = (markdown) => {
   let labContent = ""
   try {
     labContent = markdown.split('---\n')
-    
+
     if (labContent[2] == null) {
       if (markdown.split('---\r\n')[2] != null) {
         newContent = markdown.split('---\r\n')
-        newContent.splice(0,2);
+        newContent.splice(0, 2);
         newContent = newContent.join('---\n')
         labContent = newContent.toString()
       } else {
         labContent = markdown
       }
     } else {
-      labContent.splice(0,2);
+      labContent.splice(0, 2);
       labContent = labContent.join('---\n')
       labContent = labContent.toString()
     }
@@ -42,27 +42,27 @@ const issueNo = async (context) => {
 }
 
 const typeStep = async (currentStep, configyml, eventTrigger) => {
-    const step = configyml.steps[currentStep]
-    
-    var stepType = step.stepType;
-    var event = configyml.steps[currentStep].event
-    console.log(event);
-    try {
-      var files = step.actions[0].files
-      var scripts = step.actions[0].scripts
-    } catch (e) {
-      var files = "None"
-      var scripts = "None"
-    }
+  const step = configyml.steps[currentStep]
 
-    if (event != eventTrigger) {
-        return null
-    }
-    return [stepType, files, scripts]
+  var stepType = step.stepType;
+  var event = configyml.steps[currentStep].event
+  console.log(event);
+  try {
+    var files = step.actions[0].files
+    var scripts = step.actions[0].scripts
+  } catch (e) {
+    var files = "None"
+    var scripts = "None"
+  }
+
+  if (event != eventTrigger) {
+    return null
+  }
+  return [stepType, files, scripts]
 }
 
 const findStep = async (context) => {
-  const params = context.issue() 
+  const params = context.issue()
 
   gqlrequest = `
   query getCount {
@@ -87,43 +87,56 @@ const findStep = async (context) => {
 }
 
 const yamlFile = async (context) => {
-    try {
-        var yamlfile = await context.octokit.repos.getContent({
-          owner: context.payload.repository.owner.login,
-          repo: context.payload.repository.name,
-          path: ".bit/config.yml",
+  try {
+    console.log("trying to get yaml")
+
+    console.log(context.payload.repository.owner.login)
+    console.log(context.payload.repository.name)
+
+
+    console.log(context);
+    console.log(context.octokit);
+
+    var yamlfile = await context.octokit.repos.getContent({
+      owner: context.payload.repository.owner.login,
+      repo: context.payload.repository.name,
+      path: ".bit/config.yml",
     });
-    } catch (e) {
-      console.log(e)
-        return null
-    }
 
-    yamlfile = Buffer.from(yamlfile.data.content, 'base64').toString()
+    console.log("we got the yaml")
+    // console.log(yamlfile)
+  } catch (e) {
+    console.log("Error with getting content of yaml");
+    console.log(e)
+    return null
+  }
+  console.log("got yaml, but no content yet");
+  yamlfile = Buffer.from(yamlfile.data.content, 'base64').toString()
+  // console.log(yamlfile)
+  try {
+    let fileContents = yamlfile
+    configyml = yaml.load(fileContents);
+  } catch (e) {
+    const issueBody = context.issue({
+      title: "[ERROR] Please read",
+      body: `There was an issue parsing the config file of this course. Please contact your counselor and send them the below error.\n${e}`,
+    });
 
-    try {
-      let fileContents = yamlfile
-      configyml = yaml.load(fileContents);
-    } catch (e) {
-      const issueBody = context.issue({
-        title: "[ERROR] Please read",
-        body: `There was an issue parsing the config file of this course. Please contact your counselor and send them the below error.\n${e}`,
-      });
-
-      context.octokit.issues.create(issueBody)
-      console.log("ERROR: " + e);
-      return null
-    }
-
-    return configyml;
+    context.octokit.issues.create(issueBody)
+    console.log("ERROR: " + e);
+    return null
+  }
+  console.log("returining configyml")
+  return configyml;
 }
 
 const getFileContent = async (context, content) => {
-    const responseBody = context.issue({
-        path: content,
-      });
-    file = await context.octokit.repos.getContent(responseBody);
-    body = Buffer.from(file.data.content, 'base64').toString()
-    return [file, body];
+  const responseBody = context.issue({
+    path: content,
+  });
+  file = await context.octokit.repos.getContent(responseBody);
+  body = Buffer.from(file.data.content, 'base64').toString()
+  return [file, body];
 }
 
 exports.yamlFile = yamlFile

@@ -1,7 +1,7 @@
 const data = require('./data.js');
 const gql = require('./graphql.js');
 const evaluation = require('./evaluation.js');
-// const newrelic = require('newrelic');
+// const // newrelic = require('// newrelic');
 
 // grab the Mixpanel factory
 // var Mixpanel = require('mixpanel');
@@ -193,8 +193,8 @@ const updateFiles = async (typeOfStep, moveOn, count, configyml, branchName, con
 
   console.log(await gql.queryData(gqlrequest))
 
-  // log in newrelic
-  // newrelic.recordCustomEvent("CabinGithub", attributes)
+  // log in // newrelic
+  // // newrelic.recordCustomEvent("CabinGithub", attributes)
 }
 
 const nextStep = async (count, context, configyml, issueno) => {
@@ -292,7 +292,7 @@ const startLab = async (context, configyml) => {
   console.log(await gql.queryData(gqlrequest))
 
   const attributes = { type: 'Start Camp', user: context.payload.repository.owner.login, repo: context.payload.repository.html_url }
-  // newrelic.recordCustomEvent("CabinGithub", attributes)
+  // // newrelic.recordCustomEvent("CabinGithub", attributes)
 
   // mixpanel.track('Start Camp', {
   //   'distinct_id': context.payload.repository.owner.login,
@@ -344,7 +344,7 @@ const startLab = async (context, configyml) => {
     let res = await gql.queryData(gqlrequest)
     console.log(res)
 
-    //log first step in newrelic
+    //log first step in // newrelic
     const attributes = { type: 'Start New Step', user: context.payload.repository.owner.login, repo: context.payload.repository.html_url, repoName: context.payload.repository.name, title: configyml.steps[0].title, path: path, count: 0 }
     // newrelic.recordCustomEvent("CabinGithub", attributes)
 
@@ -398,6 +398,7 @@ const workFlow = async (context) => {
 
     try {
       console.log("Getting file " + i)
+      console.log(files.data[i])
       await context.octokit.repos.createOrUpdateFileContents({
         owner: context.payload.repository.owner.login,
         repo: context.payload.repository.name,
@@ -420,6 +421,15 @@ const workFlow = async (context) => {
     }
   }
 }
+
+
+/*
+0) get into the cloudwatch logs for this lambda
+1) replace all of the .bit/workflows with the first file copied several times and see if succeeds
+2) replace the first file with one 100x larger and see if it fails
+3) increase the memory allocation for the Lambda
+*/
+
 
 const approvePr = async (context) => {
   try {
